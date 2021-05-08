@@ -3,11 +3,10 @@ package com.mihaialexandruteodor406.unibuc
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Toast
+import android.util.Log
+import android.widget.*
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -19,6 +18,27 @@ class MainActivity : AppCompatActivity() {
         val logoutButton = findViewById<Button>(R.id.logout)
         val addCourse = findViewById<Button>(R.id.add)
         val name = findViewById<EditText>(R.id.name)
+        val courseList = findViewById<ListView>(R.id.courseList)
+
+        var courseData = ArrayList<String>()
+        var arrayAdapter = ArrayAdapter<String>(this, R.layout.list_item, courseData)
+
+        courseList.adapter = arrayAdapter
+
+        val databaseReference : DatabaseReference = FirebaseDatabase.getInstance().getReference("Unibuc")
+        databaseReference.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot){
+                courseData.clear()
+                for(snapshot in dataSnapshot.getChildren())
+                {
+                    courseData.add(snapshot.child("Curs").value.toString())
+                }
+                arrayAdapter.notifyDataSetChanged()
+            }
+            override fun onCancelled(error: DatabaseError) {
+                // Failed to read value
+                Log.w( "Failed to read value.", error.toException())
+            }})
 
         logoutButton.setOnClickListener{
             FirebaseAuth.getInstance().signOut()
@@ -37,6 +57,7 @@ class MainActivity : AppCompatActivity() {
             {
                 FirebaseDatabase.getInstance().getReference().child("Unibuc").push().child("Curs").setValue(txtName)
                 Toast.makeText(this, "Course added!", Toast.LENGTH_SHORT).show()
+                name.text.clear()
             }
         }
 
