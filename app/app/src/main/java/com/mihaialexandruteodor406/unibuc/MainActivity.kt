@@ -7,6 +7,8 @@ import android.util.Log
 import android.widget.*
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import com.google.gson.Gson
+import com.mihaialexandruteodor406.unibuc.model.CourseDetails
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -20,7 +22,10 @@ class MainActivity : AppCompatActivity() {
         val name = findViewById<EditText>(R.id.name)
         val courseList = findViewById<ListView>(R.id.courseList)
 
+        val gson = Gson()
+
         var courseData = ArrayList<String>()
+        var courseDetailsList = ArrayList<CourseDetails>()
         var arrayAdapter = ArrayAdapter<String>(this, R.layout.list_item, courseData)
 
         courseList.adapter = arrayAdapter
@@ -31,7 +36,10 @@ class MainActivity : AppCompatActivity() {
                 courseData.clear()
                 for(snapshot in dataSnapshot.getChildren())
                 {
-                    courseData.add(snapshot.child("Curs").value.toString())
+                    var jsonString = snapshot.child("Curs").value.toString()
+                    var curs = gson.fromJson(jsonString, CourseDetails::class.java)
+                    courseData.add(curs.courseName)
+                    courseDetailsList.add(curs)
                 }
                 arrayAdapter.notifyDataSetChanged()
             }
@@ -55,7 +63,8 @@ class MainActivity : AppCompatActivity() {
             }
             else
             {
-                FirebaseDatabase.getInstance().getReference().child("Unibuc").push().child("Curs").setValue(txtName)
+                FirebaseDatabase.getInstance().getReference().child("Unibuc")
+                    .push().child("Curs").setValue(gson.toJson(CourseDetails(txtName)))
                 Toast.makeText(this, "Course added!", Toast.LENGTH_SHORT).show()
                 name.text.clear()
             }
