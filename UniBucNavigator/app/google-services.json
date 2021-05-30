@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "444562242751",
+    "project_id": "unibucnavigator",
+    "storage_bucket": "unibucnavigator.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:444562242751:android:a64f281e55957f60781a0a",
+        "android_client_info": {
+          "package_name": "com.mihaialexandruteodor406.unibucnavigator"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "444562242751-mmpgbdv3l1e0ojcj947h24fegdi0ae4j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDnWotXTDBBuQZfcMsToKHWua26AqjfoU4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "444562242751-mmpgbdv3l1e0ojcj947h24fegdi0ae4j.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
