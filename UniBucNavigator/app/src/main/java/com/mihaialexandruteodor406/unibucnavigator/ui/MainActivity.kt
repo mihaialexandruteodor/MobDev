@@ -71,6 +71,7 @@ class MainActivity : Activity() {
                     marker.position = GeoPoint(mk.lat, mk.lon)
                     marker.snippet = mk.waypointName
                     marker.subDescription = mk.waypointDescript
+                    marker.icon = getResources().getDrawable( R.mipmap.marker)
                     map!!.getOverlays().add(marker)
 
                     latAvr += mk.lat
@@ -86,15 +87,6 @@ class MainActivity : Activity() {
                 // Failed to read value
                 Log.w( "Failed to read value.", error.toException())
             }})
-
-
-
-
-        /*val mk = MarkerData("Universitatea din Bucuresti",  "Universitatea din București este o universitate de stat din București și una dintre cele mai prestigioase instituții de învățământ superior din România. Fondată în 1864, Universitatea din București este a doua universitate modernă a României, după Universitatea din Iași.",
-                44.43553081023589, 26.101741700286187)
-
-        FirebaseDatabase.getInstance().getReference().child("Unibuc")
-                .child("MarkerData").push().setValue(gson.toJson(mk))*/
     }
 
     public override fun onResume() {
