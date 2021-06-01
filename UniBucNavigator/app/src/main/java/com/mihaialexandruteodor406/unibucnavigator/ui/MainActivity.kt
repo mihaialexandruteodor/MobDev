@@ -5,15 +5,19 @@ import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.util.Log
 import android.view.View
+import com.google.firebase.database.*
+import com.google.gson.Gson
 import com.mihaialexandruteodor406.unibucnavigator.R
+import com.mihaialexandruteodor406.unibucnavigator.ui.model.MarkerData
 import org.osmdroid.api.IMapController
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
-import org.osmdroid.views.overlay.infowindow.MarkerInfoWindow
+import java.util.ArrayList
 
 
 class MainActivity : Activity() {
@@ -41,19 +45,56 @@ class MainActivity : Activity() {
 
         val mapController: IMapController = map!!.getController()
         mapController.setZoom(15)
-        val unibuc = GeoPoint(44.43553081023589, 26.101741700286187)
-        mapController.setCenter(unibuc)
 
-        val unibucMarker = Marker(map)
-        unibucMarker.position = unibuc
-        unibucMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-        unibucMarker.snippet = "Universitatea din Bucuresti"
-        unibucMarker.subDescription = "Universitatea din București este o universitate de stat din București și" +
-                " una dintre cele mai prestigioase instituții de învățământ superior din România." +
-                " Fondată în 1864, Universitatea din București este a doua universitate modernă a României," +
-                " după Universitatea din Iași."
-        map!!.getOverlays().add(unibucMarker)
+        val gson = Gson()
 
+        var markerData = ArrayList<MarkerData>()
+
+        val databaseReference : DatabaseReference = FirebaseDatabase.getInstance().getReference("Unibuc")
+        databaseReference.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot){
+                markerData.clear()
+                for(snapshot in dataSnapshot.child("MarkerData").children)
+                {
+                    var jsonString = snapshot.value.toString()
+                    var mk = gson.fromJson(jsonString, MarkerData::class.java)
+                    println(mk)
+                    markerData.add(mk)
+                }
+
+                var latAvr = 0.0
+                var lonAvr = 0.0
+
+                for(mk in markerData)
+                {
+                    val marker = Marker(map)
+                    marker.position = GeoPoint(mk.lat, mk.lon)
+                    marker.snippet = mk.waypointName
+                    marker.subDescription = mk.waypointDescript
+                    map!!.getOverlays().add(marker)
+
+                    latAvr += mk.lat
+                    lonAvr += mk.lon
+                }
+
+                latAvr /= markerData.count()
+                lonAvr /= markerData.count()
+
+                mapController.setCenter(GeoPoint(latAvr, lonAvr))
+            }
+            override fun onCancelled(error: DatabaseError) {
+                // Failed to read value
+                Log.w( "Failed to read value.", error.toException())
+            }})
+
+
+
+
+        /*val mk = MarkerData("Universitatea din Bucuresti",  "Universitatea din București este o universitate de stat din București și una dintre cele mai prestigioase instituții de învățământ superior din România. Fondată în 1864, Universitatea din București este a doua universitate modernă a României, după Universitatea din Iași.",
+                44.43553081023589, 26.101741700286187)
+
+        FirebaseDatabase.getInstance().getReference().child("Unibuc")
+                .child("MarkerData").push().setValue(gson.toJson(mk))*/
     }
 
     public override fun onResume() {

@@ -1,11 +1,11 @@
 package com.mihaialexandruteodor406.unibucnavigator.ui.model
 
-class MarkerData(var wpName: String, var wpDescript: String, var wpLat: Double, var wpLon: Double) {
+import com.google.gson.annotations.SerializedName
 
-    val waypointName: String = wpName
-    val waypointDescript: String = wpDescript
-    val lat: Double = wpLat
-    val lon: Double = wpLon
+data class MarkerData(
 
-
-}
+    @SerializedName("waypointName") val waypointName: String,
+    @SerializedName("waypointDescript") val waypointDescript: String,
+    @SerializedName("lat") val lat: Double ,
+    @SerializedName("lon") val lon: Double
+)
