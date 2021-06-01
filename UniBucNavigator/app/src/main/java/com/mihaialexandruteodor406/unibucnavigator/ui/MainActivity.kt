@@ -17,7 +17,9 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
-import java.util.ArrayList
+import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider
+import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
+import java.util.*
 
 
 class MainActivity : Activity() {
@@ -25,18 +27,9 @@ class MainActivity : Activity() {
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //handle permissions first, before map is created. not depicted here
-
-        //load/initialize the osmdroid configuration, this can be done
         val ctx: Context = applicationContext
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
-        //setting this before the layout is inflated is a good idea
-        //it 'should' ensure that the map has a writable location for the map cache, even without permissions
-        //if no tiles are displayed, you can try overriding the cache path using Configuration.getInstance().setCachePath
-        //see also StorageUtils
-        //note, the load method also sets the HTTP User Agent to your application's package name, abusing osm's tile servers will get you banned based on this string
 
-        //inflate and create the map
         setContentView(R.layout.activity_main)
         map = findViewById<View>(R.id.map) as MapView
         map!!.setTileSource(TileSourceFactory.MAPNIK)
@@ -44,7 +37,7 @@ class MainActivity : Activity() {
         map!!.setMultiTouchControls(true);
 
         val mapController: IMapController = map!!.getController()
-        mapController.setZoom(15)
+        mapController.setZoom(16)
 
         val gson = Gson()
 
@@ -71,8 +64,8 @@ class MainActivity : Activity() {
                     marker.position = GeoPoint(mk.lat, mk.lon)
                     marker.snippet = mk.waypointName
                     marker.subDescription = mk.waypointDescript
-                    marker.icon = getResources().getDrawable( R.mipmap.marker)
-                    map!!.getOverlays().add(marker)
+                    marker.icon = resources.getDrawable( R.mipmap.marker, resources.newTheme())
+                    map!!.overlays.add(marker)
 
                     latAvr += mk.lat
                     lonAvr += mk.lon
@@ -82,11 +75,17 @@ class MainActivity : Activity() {
                 lonAvr /= markerData.count()
 
                 mapController.setCenter(GeoPoint(latAvr, lonAvr))
+
+                var myLocation = GpsMyLocationProvider(ctx)
+                var myLocationOverlay = MyLocationNewOverlay(myLocation, map)
+                myLocationOverlay.enableMyLocation()
+                map!!.overlays.add(myLocationOverlay)
             }
             override fun onCancelled(error: DatabaseError) {
-                // Failed to read value
                 Log.w( "Failed to read value.", error.toException())
             }})
+
+
     }
 
     public override fun onResume() {
