@@ -25,10 +25,10 @@ class Register : AppCompatActivity() {
             val txtPassword = password.text.toString()
 
             if (TextUtils.isEmpty(txtEmail) || TextUtils.isEmpty(txtPassword)){
-                Toast.makeText(this, "Empty credentials!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Campuri goale!", Toast.LENGTH_SHORT).show()
             }else if (txtPassword.length < 6)
             {
-                Toast.makeText(this, "Password too short!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Parola prea scurta!", Toast.LENGTH_SHORT).show()
             }
             else
             {
@@ -43,7 +43,7 @@ class Register : AppCompatActivity() {
             .addOnCompleteListener(this, OnCompleteListener { task ->
                 if(task.isSuccessful)
                 {
-                    Toast.makeText(this, "Register successful!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Inregistrare cu succes!", Toast.LENGTH_SHORT).show()
                     val intent = Intent(this@Register, MainActivity::class.java)
                     startActivity(intent)
                     finish()
