@@ -1,9 +1,10 @@
-package com.mihaialexandruteodor406.unibucnavigator.ui
+ package com.mihaialexandruteodor406.unibucnavigator.ui
 
 
 import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
@@ -11,9 +12,10 @@ import android.preference.PreferenceManager
 import android.util.Log
 import android.view.View
 import android.widget.Button
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import kotlinx.android.synthetic.main.activity_main.*
 import com.google.android.gms.location.*
-import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.database.*
 import com.google.gson.Gson
 import com.mihaialexandruteodor406.unibucnavigator.R
@@ -23,7 +25,6 @@ import org.osmdroid.api.IMapController
 import org.osmdroid.bonuspack.routing.OSRMRoadManager
 import org.osmdroid.bonuspack.routing.Road
 import org.osmdroid.bonuspack.routing.RoadManager
-import org.osmdroid.bonuspack.routing.RoadNode
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -48,6 +49,7 @@ class MainActivity : Activity() {
      private lateinit var locationRequest: LocationRequest
      private lateinit var locationCallback: LocationCallback
 
+
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -57,6 +59,7 @@ class MainActivity : Activity() {
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
 
         setContentView(R.layout.activity_main)
+
         map = findViewById<View>(R.id.map) as MapView
         map!!.setTileSource(TileSourceFactory.MAPNIK)
         map!!.setBuiltInZoomControls(true);
@@ -79,7 +82,6 @@ class MainActivity : Activity() {
                 {
                     var jsonString = snapshot.value.toString()
                     var mk = gson.fromJson(jsonString, MarkerData::class.java)
-                    println(mk)
                     markerData.add(mk)
                 }
 
@@ -93,6 +95,8 @@ class MainActivity : Activity() {
                     marker.snippet = mk.waypointName
                     marker.subDescription = mk.waypointDescript
                     marker.icon = resources.getDrawable( R.mipmap.marker, resources.newTheme())
+                    Singleton.locatii.add(mk.waypointName)
+                    Singleton.descriereLocatii.add(mk.waypointDescript)
                     map!!.overlays.add(marker)
 
                     marker.setOnMarkerClickListener { marker, mapView ->
@@ -126,8 +130,27 @@ class MainActivity : Activity() {
         getLocationUpdates()
         startLocationUpdates()
 
+        bottom_navigation.setOnNavigationItemSelectedListener { item ->
+            when(item.itemId) {
+                R.id.jurnal_foto -> {
+                    val intent = Intent(this@MainActivity, PhotoActivity::class.java)
+                    startActivity(intent)
+                    Toast.makeText(this, "Jurnal foto", Toast.LENGTH_SHORT).show()
+                    true
+                }
+                R.id.adrese_corpuri -> {
+                    val intent = Intent(this@MainActivity, LocatiiActivity::class.java)
+                    startActivity(intent)
+                    Toast.makeText(this, "Adrese corpuri cladire", Toast.LENGTH_SHORT).show()
+                    true
+                }
+                else -> false
+            }
+        }
+
         butonCalculeazaRuta = findViewById<Button?>(R.id.butonCalcRuta)
         butonCalculeazaRuta!!.setOnClickListener {
+            Toast.makeText(this, "Ruta calculata cu succes!", Toast.LENGTH_SHORT).show()
             GlobalScope.launch (Dispatchers.Main) {
                 ruleazaCalculRuta()
             }
@@ -211,6 +234,17 @@ class MainActivity : Activity() {
         super.onPause()
         map!!.onPause() //needed for compass, my location overlays, v6.0.0 and up
         stopLocationUpdates()
+    }
+
+    object Singleton{
+        var locatii = ArrayList<String>()
+        var descriereLocatii = ArrayList<String>()
+
+        init {
+            println("Singleton class invoked.")
+        }
+
+
     }
 
 }
