@@ -17,4 +17,7 @@
     <string name="email">email</string>
     <string name="jurnal_foto">Jurnal foto</string>
     <string name="adrese_corpuri">Adrese corpuri</string>
+    <string name="viewer_poze">viewer poze</string>
+    <string name="fa_o_poza">Fa o poza!</string>
+    <string name="share_poza">Share poza!</string>
 </resources>
